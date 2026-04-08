@@ -32,11 +32,11 @@ export default function MyAttempts() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-white">My Attempts</h1>
         <Link
           to="/student/quiz"
-          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition"
+          className="w-full sm:w-auto text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition"
         >
           Take Quiz
         </Link>
@@ -81,19 +81,21 @@ export default function MyAttempts() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-gray-400 text-left border-b border-gray-700">
-                  <th className="px-6 py-3 font-medium">#</th>
-                  <th className="px-6 py-3 font-medium">Quiz</th>
-                  <th className="px-6 py-3 font-medium">Score</th>
-                  <th className="px-6 py-3 font-medium">Date</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium hidden md:table-cell">#</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Quiz</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Score</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Date</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Time</th>
                 </tr>
               </thead>
               <tbody>
                 {attempts.map((a, i) => (
                   <tr key={a._id} className="border-b border-gray-700/50 hover:bg-gray-750">
-                    <td className="px-6 py-3 text-gray-500">{i + 1}</td>
-                    <td className="px-6 py-3 text-gray-300">{a.quizId?.title || "Deleted Quiz"}</td>
-                    <td className="px-6 py-3 text-white font-medium">{a.score}</td>
-                    <td className="px-6 py-3 text-gray-400">{new Date(a.createdAt).toLocaleDateString()}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-500 hidden md:table-cell">{i + 1}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-300">{a.quizId?.title || "Deleted Quiz"}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-white font-medium">{a.score}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
                   </tr>
                 ))}
               </tbody>

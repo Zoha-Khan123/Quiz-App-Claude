@@ -49,23 +49,24 @@ export default function AllResults() {
           <p className="px-6 py-8 text-gray-500 text-center">No results found</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[600px] text-sm">
               <thead>
                 <tr className="text-gray-400 text-left border-b border-gray-700">
-                  <th className="px-6 py-3 font-medium">#</th>
-                  <th className="px-6 py-3 font-medium">Student</th>
-                  <th className="px-6 py-3 font-medium">Email</th>
-                  <th className="px-6 py-3 font-medium">Quiz</th>
-                  <th className="px-6 py-3 font-medium">Score</th>
-                  <th className="px-6 py-3 font-medium">Date</th>
-                  <th className="px-6 py-3 font-medium">Action</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium hidden md:table-cell">#</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Student</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium hidden md:table-cell">Email</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Quiz</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Score</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Date</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Time</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((r, i) => (
                   <tr key={r._id} className="border-b border-gray-700/50 hover:bg-gray-750">
-                    <td className="px-6 py-3 text-gray-500">{i + 1}</td>
-                    <td className="px-6 py-3">
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-500 hidden md:table-cell">{i + 1}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3">
                       <Link
                         to={`/admin/results/student/${r.studentId?._id}`}
                         className="text-indigo-400 hover:text-indigo-300"
@@ -73,11 +74,12 @@ export default function AllResults() {
                         {r.studentId?.name || "Unknown"}
                       </Link>
                     </td>
-                    <td className="px-6 py-3 text-gray-400">{r.studentId?.email || "-"}</td>
-                    <td className="px-6 py-3 text-gray-300">{r.quizId?.title || "Deleted Quiz"}</td>
-                    <td className="px-6 py-3 text-white font-medium">{r.score}</td>
-                    <td className="px-6 py-3 text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-3">
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400 hidden md:table-cell">{r.studentId?.email || "-"}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-300">{r.quizId?.title || "Deleted Quiz"}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-white font-medium">{r.score}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(r.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(r.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3">
                       <button
                         onClick={() => handleDelete(r._id)}
                         className="text-red-400 hover:text-red-300 transition cursor-pointer"

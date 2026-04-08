@@ -12,7 +12,7 @@ const attemptSchema = new mongoose.Schema({
     required: true,
   },
   answers: {
-    type: [Number],
+    type: [mongoose.Schema.Types.Mixed],
     required: true,
   },
   score: {

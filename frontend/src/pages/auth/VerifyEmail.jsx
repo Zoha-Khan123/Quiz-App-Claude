@@ -29,7 +29,7 @@ export default function VerifyEmail() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-md bg-gray-900 rounded-2xl p-8 shadow-xl border border-gray-800 text-center">
+      <div className="w-full max-w-md bg-gray-900 rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-800 text-center">
         {loading ? (
           <>
             <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>

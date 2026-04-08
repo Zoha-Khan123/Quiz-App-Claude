@@ -52,10 +52,10 @@ export default function StudentResults() {
       </Link>
 
       {/* Student Info Card */}
-      <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 mb-6">
+      <div className="bg-gray-800 border border-gray-700 rounded-xl p-4 md:p-6 mb-6">
         <h1 className="text-2xl font-bold text-white">{student?.name}</h1>
         <p className="text-gray-400 mt-1">{student?.email}</p>
-        <div className="flex gap-6 mt-4">
+        <div className="flex gap-4 md:gap-6 mt-4">
           <div>
             <span className="text-sm text-gray-400">Total Attempts</span>
             <p className="text-xl font-bold text-white">{results.length}</p>
@@ -73,7 +73,7 @@ export default function StudentResults() {
 
       {/* Results Table */}
       <div className="bg-gray-800 border border-gray-700 rounded-xl">
-        <div className="px-6 py-4 border-b border-gray-700">
+        <div className="px-4 py-3 md:px-6 md:py-4 border-b border-gray-700">
           <h2 className="text-lg font-semibold text-white">Quiz History</h2>
         </div>
 
@@ -84,21 +84,23 @@ export default function StudentResults() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-gray-400 text-left border-b border-gray-700">
-                  <th className="px-6 py-3 font-medium">#</th>
-                  <th className="px-6 py-3 font-medium">Quiz</th>
-                  <th className="px-6 py-3 font-medium">Score</th>
-                  <th className="px-6 py-3 font-medium">Date</th>
-                  <th className="px-6 py-3 font-medium">Action</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium hidden md:table-cell">#</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Quiz</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Score</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Date</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Time</th>
+                  <th className="px-3 py-2 md:px-6 md:py-3 font-medium">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {results.map((r, i) => (
                   <tr key={r._id} className="border-b border-gray-700/50 hover:bg-gray-750">
-                    <td className="px-6 py-3 text-gray-500">{i + 1}</td>
-                    <td className="px-6 py-3 text-gray-300">{r.quizId?.title || "Deleted Quiz"}</td>
-                    <td className="px-6 py-3 text-white font-medium">{r.score}</td>
-                    <td className="px-6 py-3 text-gray-400">{new Date(r.createdAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-3">
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-500 hidden md:table-cell">{i + 1}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-300">{r.quizId?.title || "Deleted Quiz"}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-white font-medium">{r.score}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(r.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(r.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
+                    <td className="px-3 py-2 md:px-6 md:py-3">
                       <button
                         onClick={() => handleDelete(r._id)}
                         className="text-red-400 hover:text-red-300 transition cursor-pointer"
