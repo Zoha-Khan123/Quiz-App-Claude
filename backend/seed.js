@@ -6,7 +6,7 @@ dotenv.config();
 
 // ========== EASY LEVEL (40 Questions) ==========
 const easyQuiz = {
-  title: "JavaScript Fundamentals - Easy",
+  title: "JavaScript Quiz (Chapter 1 to 20)",
   difficulty: "easy",
   timeLimit: 2700,
   questions: [
@@ -335,15 +335,7 @@ const easyQuiz = {
       options: ["3", "4", "7", "12"],
       correctAnswer: 3,
     },
-  ],
-};
 
-// ========== MEDIUM LEVEL (40 Questions) ==========
-const mediumQuiz = {
-  title: "JavaScript Fundamentals - Medium",
-  difficulty: "medium",
-  timeLimit: 2700,
-  questions: [
     {
       question: "What is the output of the following code?",
       code: `let x = "5" + 5 - 5;\nconsole.log(x);`,
@@ -353,7 +345,7 @@ const mediumQuiz = {
     {
       question: "What will be printed?",
       code: `console.log(10 + 5 * 2 ** 2 % 3);`,
-      options: ["30", "11", "20", "0"],
+      options: ["30", "12", "20", "0"],
       correctAnswer: 1,
     },
     {
@@ -395,13 +387,13 @@ const mediumQuiz = {
         "[1, 2, 'X', 'Y', 4, 5]",
         "[1, 2, 'X', 4, 5]",
       ],
-      correctAnswer: 1,
+      correctAnswer: 2,
     },
     {
       question: "What will be printed?",
       code: `let matrix = [[1,2,3], [4,5,6], [7,8,9]];\nconsole.log(matrix[1][2] + matrix[2][0]);`,
       options: ["6", "13", "15", "9"],
-      correctAnswer: 2,
+      correctAnswer: 1,
     },
     {
       question: "What is the output?",
@@ -472,7 +464,7 @@ const mediumQuiz = {
     {
       question: "What will these return?",
       code: `console.log(5 % -3);\nconsole.log(-5 % 3);`,
-      options: ["2 and 2", "-2 and -2", "-2 and 2", "2 and -2"],
+      options: ["2 and 2", "-2 and -2", "2 and -2", "-2 and 2"],
       correctAnswer: 2,
     },
     {
@@ -529,15 +521,16 @@ const mediumQuiz = {
       correctAnswer: 1,
     },
     {
-      question: "Which is an illegal variable name?",
-      options: ["_user", "$price", "2ndPlace", "myVar"],
-      correctAnswer: 2,
+      question: "What will this code print?",
+      code: `let userRole = "admin";\nlet isActive = true;\n\nif(userRole === "admin" && isActive){\n  console.log("Full access");\n} else {\n  if(userRole === "user" && isActive){\n    console.log("Limited access");\n  } else {\n    console.log("No access");\n  }\n}`,
+      options: ["Full access", "Limited access", "No access", "Error"],
+      correctAnswer: 0,
     },
     {
-      question: "What will alert show?",
-      code: `alert(5 + "10");`,
-      options: ["15", "510", "Error", "NaN"],
-      correctAnswer: 1,
+      question: "Output of discount check?",
+      code: `let isMember = false;\nlet purchaseAmount = 120;\n\nif(isMember && purchaseAmount >= 100){\n  console.log("20% discount");\n} else {\n  if(!isMember && purchaseAmount >= 100){\n    console.log("10% discount");\n  } else {\n    console.log("No discount");\n  }\n}`,
+      options: ["20% discount", "Error", "No discount", "10% discount"],
+      correctAnswer: 3,
     },
     {
       question: "What will be printed?",
@@ -564,9 +557,9 @@ const mediumQuiz = {
       correctAnswer: 1,
     },
     {
-      question: "What will this for...in loop print?",
-      code: `let arr = [10, 20, 30];\nfor (let i in arr) {\n  console.log(i);\n}`,
-      options: ["10 20 30", "0 1 2", "Error", "10,20,30"],
+      question: "What is printed here?",
+      code: `let temp = 35;\nlet isRaining = false;\n\nif(temp > 30){\n  if(isRaining){\n    console.log("Hot and wet");\n  } else {\n    console.log("Hot and dry");\n  }\n} else {\n  console.log("Cool weather");\n}`,
+      options: ["Hot and wet", "Hot and dry", "Cool weather", "Error"],
       correctAnswer: 1,
     },
     {
@@ -586,10 +579,15 @@ const mediumQuiz = {
       correctAnswer: 2,
     },
     {
-      question: "What is the output?",
-      code: `console.log(10 + "5" - 5);`,
-      options: ["105", "10", "55", "0"],
-      correctAnswer: 1,
+      question: "Find the output of login check:",
+      code: `let username = "guest";\nlet password = "1234";\nlet isTwoFactorEnabled = true;\n\nif(username === "admin" && password === "admin123"){\n  console.log("Admin login successful");\n} else {\n  if(username === "guest" && password === "1234" && !isTwoFactorEnabled){\n    console.log("Guest login successful");\n  } else {\n    console.log("Login failed");\n  }\n}`,
+      options: [
+        "Admin login successful",
+        "Guest login successful",
+        "Login failed",
+        "Error",
+      ],
+      correctAnswer: 2,
     },
     {
       question: "What will be printed?",
@@ -600,8 +598,8 @@ const mediumQuiz = {
     {
       question: "What is the final value of sum?",
       code: `let sum = 0;\nfor (let i = 0; i < 5; i++) {\n  sum += i;\n  for (let j = 0; j < 5; j++) {\n    sum++;\n    if (i + j > 6) break;\n  }\n}\nconsole.log(sum);`,
-      options: ["40", "35", "25", "30"],
-      correctAnswer: 1,
+      options: ["40", "35", "34", "30"],
+      correctAnswer: 2,
     },
     {
       question: "What will be the output?",
@@ -612,301 +610,7 @@ const mediumQuiz = {
   ],
 };
 
-// ========== HARD LEVEL (40 Questions) ==========
-const hardQuiz = {
-  title: "JavaScript Fundamentals - Hard",
-  difficulty: "hard",
-  timeLimit: 2700,
-  questions: [
-    // ===== SINGLE (15) =====
-    {
-      question: "What is the output?",
-      code: `let x = 5;\nlet y = x++ + ++x;\nconsole.log(y);`,
-      options: ["11", "12", "13", "10"],
-      correctAnswer: 1,
-    },
-    {
-      question: "What will be printed?",
-      code: `console.log([] == false);`,
-      options: ["true", "false", "Error", "undefined"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log(3 > 2 > 1);`,
-      options: ["true", "false", "Error", "undefined"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `console.log(1 < 2 < 3);`,
-      options: ["true", "false", "Error", "undefined"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log("5" - - "2");`,
-      options: ["7", "52", "NaN", "Error"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log("5" + 2 * 3);`,
-      options: ["56", "11", "510", "Error"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log(typeof null);`,
-      options: ["null", "object", "undefined", "number"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `console.log(NaN == NaN);`,
-      options: ["true", "false", "Error", "undefined"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `console.log(!!0 + !!1);`,
-      options: ["1", "2", "true", "false"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `let x = "5"; x++; console.log(typeof x);`,
-      options: ["string", "number", "NaN", "undefined"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `let x = 5; x = x++; console.log(x);`,
-      options: ["5", "6", "Error", "undefined"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `let arr = [1,2]; let b = arr; b[0]=99; console.log(arr[0]);`,
-      options: ["1", "99", "undefined", "Error"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `console.log("A" - 1);`,
-      options: ["NaN", "-1", "A1", "Error"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log("10"/"2" + "5");`,
-      options: ["55", "105", "NaN", "Error"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `let x = 0; if(x) console.log("A"); else console.log("B");`,
-      options: ["A", "B", "Error", "Nothing"],
-      correctAnswer: 1,
-    },
 
-    // ===== MULTIPLE (10) =====
-    {
-      question: "Which are truthy?",
-      options: ["[]", "{}", '""', '"0"'],
-      correctAnswer: [0, 1, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which are falsy?",
-      options: ["0", '""', "null", "[]"],
-      correctAnswer: [0, 1, 2],
-      isMultiple: true,
-    },
-    {
-      question: "Which are valid variable names?",
-      options: ["_name", "$value", "2value", "userName"],
-      correctAnswer: [0, 1, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which mutate arrays?",
-      options: ["push()", "slice()", "splice()", "pop()"],
-      correctAnswer: [0, 2, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which return NaN?",
-      options: ['"A"-1', '"Hello"/2', '"5"*2', 'undefined+1'],
-      correctAnswer: [0, 1, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which are correct about == ?",
-      options: [
-        "Does coercion",
-        "null == undefined",
-        "[] == false",
-        "Strict comparison",
-      ],
-      correctAnswer: [0, 1, 2],
-      isMultiple: true,
-    },
-    {
-      question: "Which about typeof are correct?",
-      options: [
-        "typeof null is object",
-        "typeof [] is object",
-        "typeof NaN is number",
-        "typeof undefined is undefined",
-      ],
-      correctAnswer: [0, 1, 2, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which loop statements are correct?",
-      options: [
-        "break exits loop",
-        "continue skips iteration",
-        "continue stops loop",
-        "break works in switch",
-      ],
-      correctAnswer: [0, 1, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which about arrays?",
-      options: [
-        "Objects",
-        "Zero indexed",
-        "Negative index works",
-        "Can store mixed types",
-      ],
-      correctAnswer: [0, 1, 3],
-      isMultiple: true,
-    },
-    {
-      question: "Which are comparison operators?",
-      options: ["==", "===", "!=", "="],
-      correctAnswer: [0, 1, 2],
-      isMultiple: true,
-    },
-
-    // ===== CODING COMPLEX (10) =====
-    {
-      question: "Output?",
-      code: `let count=0;\nfor(let i=0;i<3;i++){\n for(let j=0;j<3;j++){\n  if(i===j) continue;\n  count++;\n }\n}\nconsole.log(count);`,
-      options: ["3", "4", "6", "9"],
-      correctAnswer: 2,
-    },
-    {
-      question: "Output?",
-      code: `let sum=0;\nfor(let i=1;i<=3;i++){\n for(let j=1;j<=i;j++){\n  sum++;\n }\n}\nconsole.log(sum);`,
-      options: ["3", "6", "9", "12"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `let total=0;\nfor(let i=1;i<=3;i++){\n for(let j=1;j<=3;j++){\n  if(i===j) continue;\n  total+=i*j;\n }\n}\nconsole.log(total);`,
-      options: ["12", "22", "24", "30"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `let arr=[1,2,3];\narr[1]=arr;\nconsole.log(arr[1][1][1]);`,
-      options: ["Circular reference (array itself)", "undefined", "Error", "2"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `let arr=[1,2,3];\narr.length=1;\narr[5]=10;\nconsole.log(arr.length);`,
-      options: ["1", "6", "5", "Error"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `let c=0;\nfor(let i=0;i<3;i++){\n for(let j=0;j<3;j++){\n  break;\n }\n c++;\n}\nconsole.log(c);`,
-      options: ["0", "1", "3", "9"],
-      correctAnswer: 2,
-    },
-    {
-      question: "Output?",
-      code: `let x=[1,2];\nlet y=[1,2];\nconsole.log(x==y);`,
-      options: ["true", "false", "Error", "undefined"],
-      correctAnswer: 1,
-    },
-    {
-      question: "Output?",
-      code: `console.log([] + {});`,
-      options: ["[object Object]", "{}", "Error", "undefined"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `console.log({} + []);`,
-      options: ["[object Object]", "0", "Error", "undefined"],
-      correctAnswer: 0,
-    },
-    {
-      question: "Output?",
-      code: `let s="0";\nif(s) console.log("A"); else console.log("B");`,
-      options: ["A", "B", "Error", "Nothing"],
-      correctAnswer: 0,
-    },
-
-    // ===== THEORY (5) =====
-    {
-      question: "Why [] == false is true?",
-      options: [
-        "Array is false",
-        "Type coercion converts [] to '' then 0",
-        "Because null",
-        "JS bug",
-      ],
-      correctAnswer: 1,
-    },
-    {
-      question: "Why NaN != NaN?",
-      options: [
-        "Because NaN is special value",
-        "Because bug",
-        "Because string",
-        "Because undefined",
-      ],
-      correctAnswer: 0,
-    },
-    {
-      question: "Why typeof null is object?",
-      options: [
-        "Design bug in JS",
-        "Because null is object",
-        "Because undefined",
-        "Because boolean",
-      ],
-      correctAnswer: 0,
-    },
-    {
-      question: "Why arrays are objects?",
-      options: [
-        "Because they store keys",
-        "Because JS treats everything as object",
-        "Because typeof returns object",
-        "All of above",
-      ],
-      correctAnswer: 3,
-    },
-    {
-      question: "Why '5' - 2 works but '5' + 2 concatenates?",
-      options: [
-        "Because + prefers string",
-        "Because - converts to number",
-        "Both",
-        "None",
-      ],
-      correctAnswer: 2,
-    },
-  ],
-};
 
 const seedDB = async () => {
   try {
@@ -915,11 +619,9 @@ const seedDB = async () => {
 
     await Quiz.deleteMany({});
     await Quiz.create(easyQuiz);
-    await Quiz.create(mediumQuiz);
-    await Quiz.create(hardQuiz);
 
     console.log(
-      "3 Quiz levels seeded successfully! (40 questions each = 120 total)"
+      "Quiz seeded successfully! (80 questions total)"
     );
     process.exit(0);
   } catch (error) {

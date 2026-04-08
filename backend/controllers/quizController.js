@@ -26,13 +26,17 @@ export const getQuiz = async (req, res) => {
       return res.status(404).json({ message: "No quiz found" });
     }
 
+    // Randomly select 40 questions from the pool
+    const allQuestions = quiz.questions;
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 40);
+
     // Don't send correctAnswer to the client
-    const sanitizedQuestions = quiz.questions.map((q) => ({
+    const sanitizedQuestions = selected.map((q) => ({
       _id: q._id,
       question: q.question,
       code: q.code || null,
       options: q.options,
-      isMultiple: q.isMultiple || false,
     }));
 
     res.json({
@@ -50,29 +54,22 @@ export const getQuiz = async (req, res) => {
 
 export const submitQuiz = async (req, res) => {
   try {
-    const { quizId, answers } = req.body;
+    const { quizId, answers, questionIds } = req.body;
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) {
       return res.status(404).json({ message: "Quiz not found" });
     }
 
+    // Get only the questions that were served to this user
+    const questions = questionIds.map((id) =>
+      quiz.questions.find((q) => q._id.toString() === id)
+    ).filter(Boolean);
+
     let score = 0;
-    quiz.questions.forEach((q, index) => {
-      const correct = q.correctAnswer;
-      const answer = answers[index];
-      if (Array.isArray(correct)) {
-        if (
-          Array.isArray(answer) &&
-          answer.length === correct.length &&
-          [...answer].sort().join(",") === [...correct].sort().join(",")
-        ) {
-          score++;
-        }
-      } else {
-        if (answer === correct) {
-          score++;
-        }
+    questions.forEach((q, index) => {
+      if (answers[index] === q.correctAnswer) {
+        score++;
       }
     });
 
@@ -85,29 +82,15 @@ export const submitQuiz = async (req, res) => {
 
     res.json({
       score,
-      total: quiz.questions.length,
-      review: quiz.questions.map((q, i) => {
-        const correct = q.correctAnswer;
-        const answer = answers[i];
-        let isCorrect;
-        if (Array.isArray(correct)) {
-          isCorrect =
-            Array.isArray(answer) &&
-            answer.length === correct.length &&
-            [...answer].sort().join(",") === [...correct].sort().join(",");
-        } else {
-          isCorrect = answer === correct;
-        }
-        return {
-          question: q.question,
-          code: q.code || null,
-          options: q.options,
-          selected: answer,
-          correctAnswer: correct,
-          isMultiple: q.isMultiple || false,
-          isCorrect,
-        };
-      }),
+      total: questions.length,
+      review: questions.map((q, i) => ({
+        question: q.question,
+        code: q.code || null,
+        options: q.options,
+        selected: answers[i],
+        correctAnswer: q.correctAnswer,
+        isCorrect: answers[i] === q.correctAnswer,
+      })),
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });

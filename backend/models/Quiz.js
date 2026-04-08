@@ -13,12 +13,8 @@ const questionSchema = new mongoose.Schema({
     required: true,
   },
   correctAnswer: {
-    type: mongoose.Schema.Types.Mixed,
+    type: Number,
     required: true,
-  },
-  isMultiple: {
-    type: Boolean,
-    default: false,
   },
 });
 

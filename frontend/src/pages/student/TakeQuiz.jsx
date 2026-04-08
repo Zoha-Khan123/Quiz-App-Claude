@@ -3,53 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import { useQuiz } from "../../context/QuizContext";
 
-const levelConfig = {
-  easy: {
-    label: "Easy",
-    description: "Basic conceptual questions about JavaScript fundamentals",
-    color: "green",
-    bg: "bg-green-600/10",
-    border: "border-green-600/40 hover:border-green-500",
-    badge: "bg-green-600/20 text-green-400",
-    icon: (
-      <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  medium: {
-    label: "Medium",
-    description: "Code output questions, mixed concepts, and tricky scenarios",
-    color: "yellow",
-    bg: "bg-yellow-600/10",
-    border: "border-yellow-600/40 hover:border-yellow-500",
-    badge: "bg-yellow-600/20 text-yellow-400",
-    icon: (
-      <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  hard: {
-    label: "Hard",
-    description: "Real logic puzzles, edge cases, and advanced code analysis",
-    color: "red",
-    bg: "bg-red-600/10",
-    border: "border-red-600/40 hover:border-red-500",
-    badge: "bg-red-600/20 text-red-400",
-    icon: (
-      <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
-      </svg>
-    ),
-  },
-};
-
 export default function TakeQuiz() {
   const { setQuizActive } = useQuiz();
-  const [levels, setLevels] = useState(null);
-  const [selectedLevel, setSelectedLevel] = useState(null);
   const [quiz, setQuiz] = useState(null);
+  const [questionIds, setQuestionIds] = useState([]);
   const [timeLeft, setTimeLeft] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [current, setCurrent] = useState(0);
@@ -59,18 +16,19 @@ export default function TakeQuiz() {
   const [started, setStarted] = useState(false);
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [quizInfo, setQuizInfo] = useState(null);
   const timerRef = useRef(null);
   const submittedRef = useRef(false);
   const navigate = useNavigate();
 
-  // Fetch available levels on mount
+  // Fetch quiz info on mount
   useEffect(() => {
     api.get("/quiz/levels")
       .then(({ data }) => {
         if (data.length === 0) {
           setNoQuiz(true);
         } else {
-          setLevels(data);
+          setQuizInfo(data[0]);
         }
       })
       .catch((err) => {
@@ -84,22 +42,20 @@ export default function TakeQuiz() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Fetch quiz when level is selected
-  const selectLevel = (difficulty) => {
-    setSelectedLevel(difficulty);
+  // Start quiz - fetch random 40 questions
+  const startQuiz = () => {
     setLoading(true);
     setError("");
-    api.get(`/quiz?difficulty=${difficulty}`)
+    api.get(`/quiz?difficulty=easy`)
       .then(({ data }) => {
         setQuiz(data.quiz);
+        setQuestionIds(data.quiz.questions.map((q) => q._id));
         setTimeLeft(45 * 60);
-        setAnswers(
-          data.quiz.questions.map((q) => (q.isMultiple ? [] : -1))
-        );
+        setAnswers(data.quiz.questions.map(() => -1));
+        setStarted(true);
       })
       .catch((err) => {
         setError(err.response?.data?.message || "Failed to load quiz");
-        setSelectedLevel(null);
       })
       .finally(() => setLoading(false));
   };
@@ -113,6 +69,7 @@ export default function TakeQuiz() {
       const { data } = await api.post("/quiz/submit", {
         quizId: quiz._id,
         answers: finalAnswers,
+        questionIds,
       });
       setResult(data);
     } catch (err) {
@@ -121,7 +78,7 @@ export default function TakeQuiz() {
     } finally {
       setSubmitting(false);
     }
-  }, [quiz]);
+  }, [quiz, questionIds]);
 
   // Set quiz active state + browser warning
   useEffect(() => {
@@ -138,15 +95,13 @@ export default function TakeQuiz() {
     }
   }, [started, result, setQuizActive]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => setQuizActive(false);
   }, [setQuizActive]);
 
-  // Timer only runs after started
+  // Timer
   useEffect(() => {
     if (!started || !quiz || result || timeLeft <= 0) return;
-
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -156,7 +111,6 @@ export default function TakeQuiz() {
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timerRef.current);
   }, [started, quiz, result]);
 
@@ -168,21 +122,7 @@ export default function TakeQuiz() {
 
   const selectAnswer = (optionIndex) => {
     const newAnswers = [...answers];
-    const q = quiz.questions[current];
-    if (q.isMultiple) {
-      const currentArr = Array.isArray(newAnswers[current])
-        ? [...newAnswers[current]]
-        : [];
-      const idx = currentArr.indexOf(optionIndex);
-      if (idx === -1) {
-        currentArr.push(optionIndex);
-      } else {
-        currentArr.splice(idx, 1);
-      }
-      newAnswers[current] = currentArr;
-    } else {
-      newAnswers[current] = optionIndex;
-    }
+    newAnswers[current] = optionIndex;
     setAnswers(newAnswers);
   };
 
@@ -222,35 +162,48 @@ export default function TakeQuiz() {
     );
   }
 
-  // LEVEL SELECTION SCREEN
-  if (!selectedLevel || !quiz) {
+  // LANDING SCREEN - Single Card
+  if (!started) {
     return (
-      <div className="max-w-2xl mx-auto mt-6 md:mt-12">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Choose Difficulty Level</h1>
-          <p className="text-gray-400">Select a difficulty level to start the quiz</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {levels && levels.map((lvl) => {
-            const config = levelConfig[lvl.difficulty];
-            if (!config) return null;
-            return (
-              <button
-                key={lvl._id}
-                onClick={() => selectLevel(lvl.difficulty)}
-                className={`${config.bg} border ${config.border} rounded-2xl p-6 text-center transition cursor-pointer`}
-              >
-                <div className={`w-14 h-14 ${config.badge} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                  {config.icon}
-                </div>
-                <h2 className="text-lg font-bold text-white mb-1">{config.label}</h2>
-                <p className="text-gray-400 text-xs mb-3">{config.description}</p>
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${config.badge}`}>
-                  {lvl.questionCount} Questions
-                </span>
-              </button>
-            );
-          })}
+      <div className="max-w-lg mx-auto mt-8 md:mt-16">
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-indigo-500/30 rounded-2xl p-8 md:p-10 text-center shadow-2xl shadow-indigo-500/10">
+          {/* Icon */}
+          <div className="w-20 h-20 bg-indigo-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
+            <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+
+          {/* Title */}
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">JavaScript Quiz</h1>
+          <p className="text-indigo-400 font-medium text-sm mb-6">Chapters 1 – 20</p>
+
+          {/* Stats */}
+          <div className="flex justify-center gap-6 mb-6">
+            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-5 py-3">
+              <p className="text-xs text-gray-400 mb-1">Questions</p>
+              <p className="text-2xl font-bold text-white">40</p>
+              <p className="text-[10px] text-gray-500">Random from {quizInfo?.questionCount || 80}</p>
+            </div>
+            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-5 py-3">
+              <p className="text-xs text-gray-400 mb-1">Time Limit</p>
+              <p className="text-2xl font-bold text-white">45</p>
+              <p className="text-[10px] text-gray-500">Minutes</p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <p className="text-gray-400 text-sm mb-8 max-w-xs mx-auto">
+            Test your JavaScript fundamentals. 40 random questions will be selected each time you take the quiz.
+          </p>
+
+          {/* Start Button */}
+          <button
+            onClick={startQuiz}
+            className="w-full sm:w-auto px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition cursor-pointer text-base shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50"
+          >
+            Start Quiz
+          </button>
         </div>
       </div>
     );
@@ -259,7 +212,6 @@ export default function TakeQuiz() {
   // Result screen
   if (result) {
     const percentage = Math.round((result.score / result.total) * 100);
-    const config = levelConfig[selectedLevel];
     return (
       <div className="max-w-2xl mx-auto mt-6 md:mt-12">
         <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 md:p-8 text-center mb-6">
@@ -267,11 +219,6 @@ export default function TakeQuiz() {
             {percentage}%
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Quiz Completed!</h1>
-          {config && (
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3 ${config.badge}`}>
-              {config.label} Level
-            </span>
-          )}
           <p className="text-gray-400 mb-6">
             You scored <span className="text-white font-semibold">{result.score}</span> out of <span className="text-white font-semibold">{result.total}</span>
           </p>
@@ -286,7 +233,7 @@ export default function TakeQuiz() {
               onClick={() => window.location.reload()}
               className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition cursor-pointer text-sm font-medium"
             >
-              Try Another Level
+              Try Again
             </button>
           </div>
         </div>
@@ -312,12 +259,8 @@ export default function TakeQuiz() {
                 )}
                 <div className="space-y-2 ml-9">
                   {item.options.map((opt, j) => {
-                    const isSelected = item.isMultiple
-                      ? Array.isArray(item.selected) && item.selected.includes(j)
-                      : item.selected === j;
-                    const isCorrect = item.isMultiple
-                      ? Array.isArray(item.correctAnswer) && item.correctAnswer.includes(j)
-                      : item.correctAnswer === j;
+                    const isSelected = item.selected === j;
+                    const isCorrect = item.correctAnswer === j;
                     let cls = "bg-gray-900 border-gray-700 text-gray-400";
                     if (isCorrect) cls = "bg-green-600/10 border-green-600/50 text-green-400";
                     if (isSelected && !isCorrect) cls = "bg-red-600/10 border-red-600/50 text-red-400 line-through";
@@ -339,60 +282,10 @@ export default function TakeQuiz() {
     );
   }
 
-  // START SCREEN — quiz loaded but not started yet
-  if (!started) {
-    const config = levelConfig[selectedLevel];
-    return (
-      <div className="max-w-lg mx-auto mt-6 md:mt-12">
-        <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 md:p-8 text-center">
-          <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">{quiz.title}</h1>
-          {config && (
-            <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-4 ${config.badge}`}>
-              {config.label} Level
-            </span>
-          )}
-          <div className="flex justify-center gap-4 md:gap-6 mt-4 mb-6">
-            <div>
-              <p className="text-sm text-gray-400">Questions</p>
-              <p className="text-xl font-bold text-white">{quiz.questions.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Time Limit</p>
-              <p className="text-xl font-bold text-white">{formatTime(timeLeft)}</p>
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm mb-6">
-            Timer will start as soon as you click the button below. Make sure you are ready.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => { setSelectedLevel(null); setQuiz(null); }}
-              className="w-full sm:w-auto px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-lg transition cursor-pointer text-sm"
-            >
-              Back to Levels
-            </button>
-            <button
-              onClick={() => setStarted(true)}
-              className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition cursor-pointer text-base"
-            >
-              Start Quiz
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // QUIZ SCREEN
   const question = quiz.questions[current];
   const unanswered = answers.reduce(
-    (acc, a, i) =>
-      Array.isArray(a) ? (a.length === 0 ? [...acc, i] : acc) : a === -1 ? [...acc, i] : acc,
+    (acc, a, i) => (a === -1 ? [...acc, i] : acc),
     []
   );
   const allAnswered = unanswered.length === 0;
@@ -439,15 +332,9 @@ export default function TakeQuiz() {
           </pre>
         )}
 
-        {question.isMultiple && (
-          <p className="text-xs text-indigo-400 mb-3">(Select all that apply)</p>
-        )}
-
         <div className="space-y-3">
           {question.options.map((opt, i) => {
-            const isSelected = question.isMultiple
-              ? Array.isArray(answers[current]) && answers[current].includes(i)
-              : answers[current] === i;
+            const isSelected = answers[current] === i;
             return (
               <button
                 key={i}
@@ -459,13 +346,11 @@ export default function TakeQuiz() {
                 }`}
               >
                 <span
-                  className={`inline-block w-6 h-6 text-center text-sm leading-6 mr-3 ${
-                    question.isMultiple
-                      ? `rounded ${isSelected ? "bg-indigo-500 text-white" : "bg-gray-700 text-gray-300"}`
-                      : `rounded-full ${isSelected ? "bg-indigo-500 text-white" : "bg-gray-700 text-gray-300"}`
+                  className={`inline-block w-6 h-6 text-center text-sm leading-6 mr-3 rounded-full ${
+                    isSelected ? "bg-indigo-500 text-white" : "bg-gray-700 text-gray-300"
                   }`}
                 >
-                  {isSelected ? (question.isMultiple ? "\u2713" : "") : String.fromCharCode(65 + i)}
+                  {isSelected ? "" : String.fromCharCode(65 + i)}
                 </span>
                 {opt}
               </button>
@@ -482,7 +367,7 @@ export default function TakeQuiz() {
             className={`w-10 h-10 md:w-9 md:h-9 rounded-lg text-sm font-medium transition cursor-pointer ${
               i === current
                 ? "bg-indigo-600 text-white"
-                : (Array.isArray(answers[i]) ? answers[i].length > 0 : answers[i] !== -1)
+                : answers[i] !== -1
                 ? "bg-green-600/30 text-green-400 border border-green-600/50"
                 : "bg-gray-800 text-gray-400 hover:bg-gray-700"
             }`}
