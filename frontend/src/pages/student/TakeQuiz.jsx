@@ -211,17 +211,46 @@ export default function TakeQuiz() {
 
   // Result screen
   if (result) {
-    const percentage = Math.round((result.score / result.total) * 100);
+    const percentage = result.answered > 0 ? Math.round((result.score / result.answered) * 100) : 0;
     return (
       <div className="max-w-2xl mx-auto mt-6 md:mt-12">
         <div className="bg-gray-800 border border-gray-700 rounded-2xl p-6 md:p-8 text-center mb-6">
+          {/* Unanswered banner */}
+          {result.unanswered > 0 && (
+            <div className="bg-yellow-500/10 border border-yellow-500/40 rounded-xl px-4 py-3 mb-6">
+              <p className="text-yellow-400 text-sm font-medium">
+                {result.unanswered} question{result.unanswered > 1 ? "s" : ""} remaining (not attempted)
+              </p>
+            </div>
+          )}
+
           <div className={`w-24 h-24 mx-auto rounded-full flex items-center justify-center text-3xl font-bold mb-6 ${percentage >= 50 ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
             {percentage}%
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Quiz Completed!</h1>
-          <p className="text-gray-400 mb-6">
-            You scored <span className="text-white font-semibold">{result.score}</span> out of <span className="text-white font-semibold">{result.total}</span>
+          <h1 className="text-2xl font-bold text-white mb-4">
+            {result.unanswered > 0 ? "Time's Up!" : "Quiz Completed!"}
+          </h1>
+
+          {/* Stats grid */}
+          <div className="flex justify-center gap-4 mb-6">
+            <div className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 min-w-[90px]">
+              <p className="text-xs text-gray-400 mb-1">Attempted</p>
+              <p className="text-xl font-bold text-white">{result.answered}</p>
+            </div>
+            <div className="bg-gray-900 border border-green-600/30 rounded-xl px-4 py-3 min-w-[90px]">
+              <p className="text-xs text-gray-400 mb-1">Correct</p>
+              <p className="text-xl font-bold text-green-400">{result.score}</p>
+            </div>
+            <div className="bg-gray-900 border border-red-600/30 rounded-xl px-4 py-3 min-w-[90px]">
+              <p className="text-xs text-gray-400 mb-1">Wrong</p>
+              <p className="text-xl font-bold text-red-400">{result.answered - result.score}</p>
+            </div>
+          </div>
+
+          <p className="text-gray-400 text-sm mb-6">
+            Score: <span className="text-white font-semibold">{result.score}</span> / <span className="text-white font-semibold">{result.total}</span> total questions
           </p>
+
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => navigate("/student/attempts")}
@@ -238,10 +267,10 @@ export default function TakeQuiz() {
           </div>
         </div>
 
-        {/* Answer Review */}
-        {result.review && (
+        {/* Answer Review - only attempted questions */}
+        {result.review && result.review.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">Answer Review</h2>
+            <h2 className="text-lg font-semibold text-white">Answer Review ({result.review.length} attempted)</h2>
             {result.review.map((item, i) => (
               <div key={i} className={`bg-gray-800 border rounded-xl p-4 md:p-5 ${item.isCorrect ? "border-green-600/40" : "border-red-600/40"}`}>
                 <div className="flex items-start gap-3 mb-3">

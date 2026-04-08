@@ -67,11 +67,17 @@ export const submitQuiz = async (req, res) => {
     ).filter(Boolean);
 
     let score = 0;
+    let answered = 0;
     questions.forEach((q, index) => {
-      if (answers[index] === q.correctAnswer) {
-        score++;
+      if (answers[index] !== -1 && answers[index] !== null && answers[index] !== undefined) {
+        answered++;
+        if (answers[index] === q.correctAnswer) {
+          score++;
+        }
       }
     });
+
+    const unanswered = questions.length - answered;
 
     const attempt = await Attempt.create({
       studentId: req.user.id,
@@ -80,17 +86,27 @@ export const submitQuiz = async (req, res) => {
       score,
     });
 
+    // Only include answered questions in review
+    const review = [];
+    questions.forEach((q, i) => {
+      if (answers[i] !== -1 && answers[i] !== null && answers[i] !== undefined) {
+        review.push({
+          question: q.question,
+          code: q.code || null,
+          options: q.options,
+          selected: answers[i],
+          correctAnswer: q.correctAnswer,
+          isCorrect: answers[i] === q.correctAnswer,
+        });
+      }
+    });
+
     res.json({
       score,
       total: questions.length,
-      review: questions.map((q, i) => ({
-        question: q.question,
-        code: q.code || null,
-        options: q.options,
-        selected: answers[i],
-        correctAnswer: q.correctAnswer,
-        isCorrect: answers[i] === q.correctAnswer,
-      })),
+      answered,
+      unanswered,
+      review,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
