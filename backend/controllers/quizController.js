@@ -26,10 +26,13 @@ export const getQuiz = async (req, res) => {
       return res.status(404).json({ message: "No quiz found" });
     }
 
-    // Randomly select 40 questions from the pool
-    const allQuestions = quiz.questions;
-    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, 40);
+    // Randomly select 40 unique questions using Fisher-Yates shuffle
+    const allQuestions = [...quiz.questions];
+    for (let i = allQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
+    }
+    const selected = allQuestions.slice(0, 40);
 
     // Don't send correctAnswer to the client
     const sanitizedQuestions = selected.map((q) => ({
