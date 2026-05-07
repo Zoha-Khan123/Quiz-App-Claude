@@ -89,15 +89,31 @@ export default function MyAttempts() {
                 </tr>
               </thead>
               <tbody>
-                {attempts.map((a, i) => (
-                  <tr key={a._id} className="border-b border-gray-700/50 hover:bg-gray-750">
-                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-500 hidden md:table-cell">{i + 1}</td>
-                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-300">{a.quizId?.title || "Deleted Quiz"}</td>
-                    <td className="px-3 py-2 md:px-6 md:py-3 text-white font-medium">{a.score}</td>
-                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
-                    <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
-                  </tr>
-                ))}
+                {attempts.map((a, i) => {
+                  const quizTitle = a.quizId?.title || "Deleted Quiz";
+                  const displayTitle = quizTitle.includes("Chapter 21 to 40") ? "Chapter 21-40" : quizTitle;
+
+                  return (
+                    <tr key={a._id} className="border-b border-gray-700/50 hover:bg-gray-750">
+                      <td className="px-3 py-2 md:px-6 md:py-3 text-gray-500 hidden md:table-cell">{i + 1}</td>
+                      <td className="px-3 py-2 md:px-6 md:py-3 text-gray-300">
+                        {displayTitle}
+                        {a.levelDifficulty && (
+                          <span className={`ml-2 text-xs font-semibold ${
+                            a.levelDifficulty === "easy" ? "text-green-400" :
+                            a.levelDifficulty === "medium" ? "text-yellow-400" :
+                            "text-red-400"
+                          }`}>
+                            - {a.levelDifficulty.charAt(0).toUpperCase() + a.levelDifficulty.slice(1)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2 md:px-6 md:py-3 text-white font-medium">{a.score}</td>
+                      <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</td>
+                      <td className="px-3 py-2 md:px-6 md:py-3 text-gray-400">{new Date(a.createdAt).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GuestRoute from "./components/GuestRoute";
 import AdminLayout from "./components/AdminLayout";
 import StudentLayout from "./components/StudentLayout";
 import { QuizProvider } from "./context/QuizContext";
+import Home from "./pages/Home";
+import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/auth/Login";
 import Signup from "./pages/auth/Signup";
 import ForgotPassword from "./pages/auth/ForgotPassword";
@@ -16,17 +18,14 @@ import StudentResults from "./pages/admin/StudentResults";
 import TakeQuiz from "./pages/student/TakeQuiz";
 import MyAttempts from "./pages/student/MyAttempts";
 
-function HomeRedirect() {
-  const { user, isAdmin } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  if (isAdmin) return <Navigate to="/admin/dashboard" replace />;
-  return <Navigate to="/student/quiz" replace />;
-}
-
 function App() {
   return (
     <AuthProvider>
       <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+
         {/* Auth routes - only for guests (not logged in) */}
         <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
         <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
@@ -66,7 +65,7 @@ function App() {
         </Route>
 
         {/* Default */}
-        <Route path="*" element={<HomeRedirect />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
   );

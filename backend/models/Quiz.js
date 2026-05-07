@@ -18,11 +18,7 @@ const questionSchema = new mongoose.Schema({
   },
 });
 
-const quizSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
+const levelSchema = new mongoose.Schema({
   difficulty: {
     type: String,
     enum: ["easy", "medium", "hard"],
@@ -33,6 +29,22 @@ const quizSchema = new mongoose.Schema({
     required: true,
   },
   questions: [questionSchema],
+});
+
+const quizSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  difficulty: {
+    type: String,
+    enum: ["easy", "medium", "hard"],
+  },
+  timeLimit: {
+    type: Number,
+  },
+  questions: [questionSchema],
+  levels: [levelSchema], // Optional: for quizzes with multiple levels
 });
 
 export default mongoose.model("Quiz", quizSchema);

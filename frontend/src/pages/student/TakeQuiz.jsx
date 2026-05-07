@@ -16,19 +16,21 @@ export default function TakeQuiz() {
   const [started, setStarted] = useState(false);
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [quizInfo, setQuizInfo] = useState(null);
+  const [allQuizzes, setAllQuizzes] = useState([]);
+  const [selectedQuizId, setSelectedQuizId] = useState(null);
+  const [selectedLevelDifficulty, setSelectedLevelDifficulty] = useState(null);
   const timerRef = useRef(null);
   const submittedRef = useRef(false);
   const navigate = useNavigate();
 
-  // Fetch quiz info on mount
+  // Fetch all quizzes on mount
   useEffect(() => {
     api.get("/quiz/levels")
       .then(({ data }) => {
         if (data.length === 0) {
           setNoQuiz(true);
         } else {
-          setQuizInfo(data[0]);
+          setAllQuizzes(data);
         }
       })
       .catch((err) => {
@@ -43,14 +45,22 @@ export default function TakeQuiz() {
   }, []);
 
   // Start quiz - fetch random 40 questions
-  const startQuiz = () => {
+  const startQuiz = (quizId, levelDifficulty = null) => {
     setLoading(true);
     setError("");
-    api.get(`/quiz?difficulty=easy`)
+    setSelectedQuizId(quizId);
+    setSelectedLevelDifficulty(levelDifficulty);
+
+    let url = `/quiz?quizId=${quizId}`;
+    if (levelDifficulty) {
+      url += `&levelDifficulty=${levelDifficulty}`;
+    }
+
+    api.get(url)
       .then(({ data }) => {
         setQuiz(data.quiz);
         setQuestionIds(data.quiz.questions.map((q) => q._id));
-        setTimeLeft(45 * 60);
+        setTimeLeft(data.timeLimit || 45 * 60);
         setAnswers(data.quiz.questions.map(() => -1));
         setStarted(true);
       })
@@ -66,11 +76,17 @@ export default function TakeQuiz() {
     setSubmitting(true);
     clearInterval(timerRef.current);
     try {
-      const { data } = await api.post("/quiz/submit", {
+      const payload = {
         quizId: quiz._id,
         answers: finalAnswers,
         questionIds,
-      });
+      };
+
+      if (selectedLevelDifficulty) {
+        payload.levelDifficulty = selectedLevelDifficulty;
+      }
+
+      const { data } = await api.post("/quiz/submit", payload);
       setResult(data);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to submit quiz");
@@ -78,7 +94,7 @@ export default function TakeQuiz() {
     } finally {
       setSubmitting(false);
     }
-  }, [quiz, questionIds]);
+  }, [quiz, questionIds, selectedLevelDifficulty]);
 
   // Set quiz active state + browser warning
   useEffect(() => {
@@ -162,48 +178,149 @@ export default function TakeQuiz() {
     );
   }
 
-  // LANDING SCREEN - Single Card
+  // LANDING SCREEN - Multiple Quiz Cards
   if (!started) {
     return (
-      <div className="max-w-lg mx-auto mt-8 md:mt-16">
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-indigo-500/30 rounded-2xl p-8 md:p-10 text-center shadow-2xl shadow-indigo-500/10">
-          {/* Icon */}
-          <div className="w-20 h-20 bg-indigo-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 rotate-3">
-            <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-            </svg>
-          </div>
+      <div className="max-w-6xl mx-auto mt-8 md:mt-12">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">JavaScript Quizzes</h1>
+          <p className="text-gray-400">Choose a quiz to test your knowledge</p>
+        </div>
 
-          {/* Title */}
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">JavaScript Quiz</h1>
-          <p className="text-indigo-400 font-medium text-sm mb-6">Chapters 1 – 20</p>
+        <div className="space-y-8">
+          {allQuizzes.map((quiz, index) => {
+            const hasLevels = quiz.levels && quiz.levels.length > 0;
 
-          {/* Stats */}
-          <div className="flex justify-center gap-6 mb-6">
-            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-5 py-3">
-              <p className="text-xs text-gray-400 mb-1">Questions</p>
-              <p className="text-2xl font-bold text-white">40</p>
-              <p className="text-[10px] text-gray-500">Random from {quizInfo?.questionCount || 80}</p>
-            </div>
-            <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-5 py-3">
-              <p className="text-xs text-gray-400 mb-1">Time Limit</p>
-              <p className="text-2xl font-bold text-white">45</p>
-              <p className="text-[10px] text-gray-500">Minutes</p>
-            </div>
-          </div>
+            if (hasLevels) {
+              // Quiz with multiple levels (Quiz 2 - Chapter 21-40)
+              return (
+                <div
+                  key={quiz._id}
+                  className="bg-gray-800 border border-gray-700 rounded-2xl p-6 md:p-8"
+                >
+                  <div className="mb-6 text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Chapter 21-40 MCQs</h2>
+                    <p className="text-indigo-400 font-medium text-sm mb-2">Quiz {index + 1}</p>
+                    <p className="text-gray-400 text-sm">Choose your difficulty level</p>
+                  </div>
 
-          {/* Description */}
-          <p className="text-gray-400 text-sm mb-8 max-w-xs mx-auto">
-            Test your JavaScript fundamentals. 40 random questions will be selected each time you take the quiz.
-          </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                    {quiz.levels.map((level) => (
+                      <div
+                        key={level.difficulty}
+                        className={`group bg-gray-900 border rounded-xl p-5 md:p-6 transition-all duration-300 hover:scale-105 ${
+                          level.difficulty === "easy" ? "border-green-500/30 hover:border-green-500/60 hover:shadow-lg hover:shadow-green-500/20" :
+                          level.difficulty === "medium" ? "border-yellow-500/30 hover:border-yellow-500/60 hover:shadow-lg hover:shadow-yellow-500/20" :
+                          "border-red-500/30 hover:border-red-500/60 hover:shadow-lg hover:shadow-red-500/20"
+                        }`}
+                      >
+                        {/* Level Badge */}
+                        <div className="flex items-center justify-center gap-2 mb-4">
+                          <span className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${
+                            level.difficulty === "easy" ? "bg-green-500/20 text-green-400" :
+                            level.difficulty === "medium" ? "bg-yellow-500/20 text-yellow-400" :
+                            "bg-red-500/20 text-red-400"
+                          }`}>
+                            {level.difficulty}
+                          </span>
+                        </div>
 
-          {/* Start Button */}
-          <button
-            onClick={startQuiz}
-            className="w-full sm:w-auto px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition cursor-pointer text-base shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50"
-          >
-            Start Quiz
-          </button>
+                        {/* Level Title */}
+                        <h3 className={`text-xl font-bold mb-3 text-center transition-colors ${
+                          level.difficulty === "easy" ? "text-green-400" :
+                          level.difficulty === "medium" ? "text-yellow-400" :
+                          "text-red-400"
+                        }`}>
+                          {level.difficulty.charAt(0).toUpperCase() + level.difficulty.slice(1)} Level
+                        </h3>
+
+                        {/* Stats */}
+                        <div className="flex justify-center gap-3 mb-4">
+                          <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-center">
+                            <p className="text-[10px] text-gray-400 mb-1">Questions</p>
+                            <p className="text-lg font-bold text-white">40</p>
+                            <p className="text-[9px] text-gray-500">from {level.questionCount}</p>
+                          </div>
+                          <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-center">
+                            <p className="text-[10px] text-gray-400 mb-1">Time</p>
+                            <p className="text-lg font-bold text-white">{Math.floor(level.timeLimit / 60)}</p>
+                            <p className="text-[9px] text-gray-500">Minutes</p>
+                          </div>
+                        </div>
+
+                        {/* Description */}
+                        <p className="text-gray-400 text-xs text-center mb-5">
+                          {level.difficulty === "easy" ? "Perfect for beginners. Test your basic knowledge." :
+                           level.difficulty === "medium" ? "Intermediate challenges to sharpen your skills." :
+                           "Hard questions for expert developers."}
+                        </p>
+
+                        {/* Start Button */}
+                        <button
+                          onClick={() => startQuiz(quiz._id, level.difficulty)}
+                          className={`w-full py-3 text-white font-bold rounded-xl transition-all text-sm shadow-lg ${
+                            level.difficulty === "easy" ? "bg-green-600 hover:bg-green-700 shadow-green-600/30 hover:shadow-green-600/50" :
+                            level.difficulty === "medium" ? "bg-yellow-600 hover:bg-yellow-700 shadow-yellow-600/30 hover:shadow-yellow-600/50" :
+                            "bg-red-600 hover:bg-red-700 shadow-red-600/30 hover:shadow-red-600/50"
+                          }`}
+                        >
+                          Start {level.difficulty.charAt(0).toUpperCase() + level.difficulty.slice(1)}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            // Regular quiz card (Quiz 1 - Chapter 1-20)
+            return (
+              <div
+                key={quiz._id}
+                className="bg-gradient-to-br from-gray-800 to-gray-900 border border-indigo-500/30 rounded-2xl p-6 md:p-8 shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all"
+              >
+                <div className="flex flex-col md:flex-row items-center gap-6">
+                  {/* Icon */}
+                  <div className="w-20 h-20 bg-indigo-600/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 text-center md:text-left">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Chapter 1-20 MCQs</h2>
+                    <p className="text-indigo-400 font-medium text-sm mb-3">Quiz {index + 1}</p>
+                    <p className="text-gray-400 text-sm mb-4">
+                      40 random questions will be selected each time you take this quiz.
+                    </p>
+
+                    {/* Stats */}
+                    <div className="flex justify-center md:justify-start gap-4">
+                      <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2">
+                        <p className="text-xs text-gray-400 mb-1">Questions</p>
+                        <p className="text-xl font-bold text-white">40</p>
+                        <p className="text-[10px] text-gray-500">from {quiz.questionCount}</p>
+                      </div>
+                      <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2">
+                        <p className="text-xs text-gray-400 mb-1">Time</p>
+                        <p className="text-xl font-bold text-white">45</p>
+                        <p className="text-[10px] text-gray-500">Minutes</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Start Button */}
+                  <button
+                    onClick={() => startQuiz(quiz._id)}
+                    className="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50"
+                  >
+                    Start Quiz
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -336,7 +453,20 @@ export default function TakeQuiz() {
       )}
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-white">{quiz.title}</h1>
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white">
+            {quiz.title.includes("Chapter 21 to 40") ? "Chapter 21-40" : quiz.title}
+            {selectedLevelDifficulty && (
+              <span className={`ml-2 text-base font-semibold ${
+                selectedLevelDifficulty === "easy" ? "text-green-400" :
+                selectedLevelDifficulty === "medium" ? "text-yellow-400" :
+                "text-red-400"
+              }`}>
+                - {selectedLevelDifficulty.charAt(0).toUpperCase() + selectedLevelDifficulty.slice(1)}
+              </span>
+            )}
+          </h1>
+        </div>
         <div className={`px-4 py-2 rounded-lg font-mono text-base sm:text-lg font-bold self-start sm:self-auto ${timeLeft <= 60 ? "bg-red-500/20 text-red-400 animate-pulse" : "bg-gray-800 text-white"}`}>
           {formatTime(timeLeft)}
         </div>

@@ -19,6 +19,10 @@ const attemptSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  levelDifficulty: {
+    type: String,
+    enum: ["easy", "medium", "hard"],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
