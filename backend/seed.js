@@ -962,7 +962,7 @@ const mediumQuiz = {
       question: "What will be the output?",
       code: `var num = 4.335;\nalert(num.toFixed(2));`,
       options: ["4.33", "4.30", "4.35", "4.34"],
-      correctAnswer: 3
+      correctAnswer: 0
     },
     {
       question: "Why does toFixed() return a string instead of number?",
@@ -983,7 +983,7 @@ const mediumQuiz = {
     },
     {
       question: "Math.random() returns:",
-      options: ["Integer", "0 to 1 decimal", "Negative number", "String"],
+      options: ["Integer", "A random decimal number from 0 (inclusive) to 1 (exclusive)", "Negative number", "String"],
       correctAnswer: 1
     },
     {
@@ -1107,8 +1107,8 @@ const hardQuiz = {
     {
       question: "What will be the output?",
       code: `var num = 1.005;\nalert(num.toFixed(2));`,
-      options: ["1.00", "1.005", "1.01", "1.00"],
-      correctAnswer: 2
+      options: ["1.00", "1.005", "1.01", "1.004"],
+      correctAnswer: 0
     },
     {
       question: "What will be printed?",
@@ -1138,7 +1138,7 @@ const hardQuiz = {
       question: "What will be printed?",
       code: `var text = "Hello World";\nvar result = text.replace("o", "X").replace("o", "Y");\nalert(result);`,
       options: ["HellX WYrld", "HellY WXrld", "HellX WXrld", "HellX World"],
-      correctAnswer: 3
+      correctAnswer: 0
     },
     {
       question: "What will be the output?",
@@ -1153,15 +1153,15 @@ const hardQuiz = {
       correctAnswer: 1
     },
     {
-      question: "What will be the output?",
-      code: `var d = new Date();\nd.setDate(32);\nalert(d.getDate());`,
-      options: ["32", "Error", "1", "2"],
-      correctAnswer: 2
-    },
+  question: "What will be the output of the following code?",
+  code: `var d = new Date("2024-01-10");\nd.setDate(d.getDate() + 5);\nalert(d.getDate());`,
+  options: ["10", "5", "15", "16"],
+  correctAnswer: 2
+},
     {
       question: "What will be the result?",
       code: `function test(a, b) {\n  a = 10;\n  alert(a + b);\n}\ntest(5, 5);`,
-      options: ["15", "10", "20", "NaN"],
+      options: ["20", "10", "15", "NaN"],
       correctAnswer: 2
     },
     {
@@ -1203,8 +1203,8 @@ const hardQuiz = {
     {
       question: "What will be printed?",
       code: `var result = 0;\nfunction add(x) {\n  return result += x;\n}\nadd(5);\nadd(10);\nadd(add(15));\nalert(result);`,
-      options: ["30", "45", "15", "50"],
-      correctAnswer: 1
+      options: ["30", "50", "15", "60"],
+      correctAnswer: 3
     },
     {
       question: "What will be the output?",
@@ -1323,8 +1323,8 @@ const hardQuiz = {
     {
       question: "What will be the final value?",
       code: `var result = 0;\nfunction add(x) { result += x; return result; }\nalert(add(5) + add(10) + add(15));`,
-      options: ["30", "45", "15", "35"],
-      correctAnswer: 1
+      options: ["30", "45", "15", "50"],
+      correctAnswer: 3
     },
     {
       question: "What will be the output?",
