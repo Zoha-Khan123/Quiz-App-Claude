@@ -70,13 +70,18 @@ export const getQuiz = async (req, res) => {
       return res.status(404).json({ message: "No questions found" });
     }
 
-    // Randomly select 40 unique questions using Fisher-Yates shuffle
+    // Shuffle questions using Fisher-Yates algorithm
     const allQuestions = [...questionsToUse];
     for (let i = allQuestions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [allQuestions[i], allQuestions[j]] = [allQuestions[j], allQuestions[i]];
     }
-    const selected = allQuestions.slice(0, 40);
+
+    // Check if it's Python quiz - return all 70 questions
+    // For other quizzes (JavaScript) - return 40 random questions
+    const isPythonQuiz = quiz.title.toLowerCase().includes('python');
+    const questionsToReturn = isPythonQuiz ? allQuestions.length : 40;
+    const selected = allQuestions.slice(0, questionsToReturn);
 
     // Don't send correctAnswer to the client
     const sanitizedQuestions = selected.map((q) => ({

@@ -183,13 +183,15 @@ export default function TakeQuiz() {
     return (
       <div className="max-w-6xl mx-auto mt-8 md:mt-12">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">JavaScript Quizzes</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Available Quizzes</h1>
           <p className="text-gray-400">Choose a quiz to test your knowledge</p>
         </div>
 
         <div className="space-y-8">
           {allQuizzes.map((quiz, index) => {
             const hasLevels = quiz.levels && quiz.levels.length > 0;
+            const isPythonQuiz = quiz.title.toLowerCase().includes("python");
+            const isJavaScriptQuiz = quiz.title.toLowerCase().includes("javascript");
 
             if (hasLevels) {
               // Quiz with multiple levels (Quiz 2 - Chapter 21-40)
@@ -199,7 +201,9 @@ export default function TakeQuiz() {
                   className="bg-gray-800 border border-gray-700 rounded-2xl p-6 md:p-8"
                 >
                   <div className="mb-6 text-center">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Chapter 21-40 MCQs</h2>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                      {isJavaScriptQuiz ? "JavaScript - Chapter 21-40" : quiz.title}
+                    </h2>
                     <p className="text-indigo-400 font-medium text-sm mb-2">Quiz {index + 1}</p>
                     <p className="text-gray-400 text-sm">Choose your difficulty level</p>
                   </div>
@@ -273,38 +277,72 @@ export default function TakeQuiz() {
               );
             }
 
-            // Regular quiz card (Quiz 1 - Chapter 1-20)
+            // Regular quiz card (JavaScript Chapter 1-20 or Python)
+            const cardBgColor = isPythonQuiz
+              ? "bg-gradient-to-br from-blue-800 to-cyan-900 border border-blue-500/30 hover:shadow-blue-500/20"
+              : "bg-gradient-to-br from-gray-800 to-gray-900 border border-indigo-500/30 hover:shadow-indigo-500/20";
+
+            const iconBgColor = isPythonQuiz
+              ? "bg-blue-600/20"
+              : "bg-indigo-600/20";
+
+            const iconColor = isPythonQuiz
+              ? "text-blue-400"
+              : "text-indigo-400";
+
+            const textColor = isPythonQuiz
+              ? "text-blue-400"
+              : "text-indigo-400";
+
+            const buttonColor = isPythonQuiz
+              ? "bg-blue-600 hover:bg-blue-700 shadow-blue-600/30 hover:shadow-blue-600/50"
+              : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30 hover:shadow-indigo-600/50";
+
             return (
               <div
                 key={quiz._id}
-                className="bg-gradient-to-br from-gray-800 to-gray-900 border border-indigo-500/30 rounded-2xl p-6 md:p-8 shadow-xl shadow-indigo-500/10 hover:shadow-indigo-500/20 transition-all"
+                className={`${cardBgColor} rounded-2xl p-6 md:p-8 shadow-xl transition-all`}
               >
                 <div className="flex flex-col md:flex-row items-center gap-6">
                   {/* Icon */}
-                  <div className="w-20 h-20 bg-indigo-600/20 rounded-2xl flex items-center justify-center flex-shrink-0">
-                    <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                    </svg>
+                  <div className={`w-20 h-20 ${iconBgColor} rounded-2xl flex items-center justify-center flex-shrink-0`}>
+                    {isPythonQuiz ? (
+                      <svg className={`w-10 h-10 ${iconColor}`} fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
+                      </svg>
+                    ) : (
+                      <svg className={`w-10 h-10 ${iconColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 text-center md:text-left">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Chapter 1-20 MCQs</h2>
-                    <p className="text-indigo-400 font-medium text-sm mb-3">Quiz {index + 1}</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                      {isPythonQuiz
+                        ? "Python Complete Course"
+                        : isJavaScriptQuiz
+                        ? "JavaScript - Chapter 1-20"
+                        : quiz.title}
+                    </h2>
+                    <p className={`${textColor} font-medium text-sm mb-3`}>Quiz {index + 1}</p>
                     <p className="text-gray-400 text-sm mb-4">
-                      40 random questions will be selected each time you take this quiz.
+                      {isPythonQuiz
+                        ? "Master Python fundamentals with 70 comprehensive questions covering all 9 classes."
+                        : "40 random questions will be selected each time you take this quiz."}
                     </p>
 
                     {/* Stats */}
                     <div className="flex justify-center md:justify-start gap-4">
                       <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2">
                         <p className="text-xs text-gray-400 mb-1">Questions</p>
-                        <p className="text-xl font-bold text-white">40</p>
-                        <p className="text-[10px] text-gray-500">from {quiz.questionCount}</p>
+                        <p className="text-xl font-bold text-white">{isPythonQuiz ? "70" : "40"}</p>
+                        <p className="text-[10px] text-gray-500">{isPythonQuiz ? "total" : `from ${quiz.questionCount}`}</p>
                       </div>
                       <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2">
                         <p className="text-xs text-gray-400 mb-1">Time</p>
-                        <p className="text-xl font-bold text-white">45</p>
+                        <p className="text-xl font-bold text-white">{isPythonQuiz ? "60" : "45"}</p>
                         <p className="text-[10px] text-gray-500">Minutes</p>
                       </div>
                     </div>
@@ -313,7 +351,7 @@ export default function TakeQuiz() {
                   {/* Start Button */}
                   <button
                     onClick={() => startQuiz(quiz._id)}
-                    className="w-full md:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50"
+                    className={`w-full md:w-auto px-8 py-3 ${buttonColor} text-white font-bold rounded-xl transition cursor-pointer text-sm shadow-lg`}
                   >
                     Start Quiz
                   </button>
