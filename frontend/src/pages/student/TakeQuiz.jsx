@@ -342,7 +342,7 @@ export default function TakeQuiz() {
                       </div>
                       <div className="bg-gray-800/80 border border-gray-700 rounded-xl px-4 py-2">
                         <p className="text-xs text-gray-400 mb-1">Time</p>
-                        <p className="text-xl font-bold text-white">{isPythonQuiz ? "60" : "45"}</p>
+                        <p className="text-xl font-bold text-white">45</p>
                         <p className="text-[10px] text-gray-500">Minutes</p>
                       </div>
                     </div>
@@ -451,7 +451,7 @@ export default function TakeQuiz() {
                     return (
                       <div key={j} className={`px-3 py-2 rounded-lg border text-sm text-left ${cls}`}>
                         <span className="font-medium mr-2">{String.fromCharCode(65 + j)}.</span>
-                        {opt}
+                        <span className="whitespace-pre-line">{opt}</span>
                         {isCorrect && <span className="ml-2 text-green-400 text-xs font-semibold">(Correct)</span>}
                         {isSelected && !isCorrect && <span className="ml-2 text-red-400 text-xs font-semibold">(Your Answer)</span>}
                       </div>
@@ -549,7 +549,7 @@ export default function TakeQuiz() {
                 >
                   {isSelected ? "" : String.fromCharCode(65 + i)}
                 </span>
-                {opt}
+                <span className="whitespace-pre-line">{opt}</span>
               </button>
             );
           })}

@@ -1401,7 +1401,7 @@ console.log("   - Hard:", quiz2.levels[2].questions.length, "questions");
 const pythonQuiz = {
   title: "Python Complete Course Quiz (Class 1-9)",
   difficulty: "medium",
-  timeLimit: 3600, // 60 minutes
+  timeLimit: 2700, // 60 minutes
    questions: [
     // Class 01: Programming (8 questions)
     {
